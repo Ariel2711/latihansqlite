@@ -5,7 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import 'dart:io' as io;
 import 'dart:async';
 import 'package:path/path.dart';
-import 'package:sqlite/app/data/note_model.dart';
+import 'package:sqlite/app/data/user_model.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper.internal();
@@ -27,55 +27,56 @@ class DatabaseHelper {
   Future setDB() async {
     io.Directory directory = await getApplicationDocumentsDirectory();
     print(directory.path);
-    String path = join(directory.path, "NoteDB");
+    String path = join(directory.path, "UserDB");
     var db = await openDatabase(path, version: 1, onCreate: _onCreate);
     return db;
   }
 
   void _onCreate(Database db, int version) async {
     await db.execute(
-        "CREATE TABLE note(id INTEGER PRIMARY KEY, title TEXT, desc TEXT)");
-    print("Database note created");
+        "CREATE TABLE user(id INTEGER PRIMARY KEY, username TEXT, password TEXT, role TEXT)");
+    print("Database user created");
   }
 
-  Future<int> saveNote(Note note) async {
+  Future<int> saveUser(User user) async {
     var dbClient = await db;
-    int res = await dbClient.insert("note", note.toJson());
-    print("note inserted");
+    int res = await dbClient.insert("user", user.toJson());
+    print("user inserted");
     return res;
   }
 
-  Future<List<Note>> getNote() async {
+  Future<List<User>> getUsers() async {
     var dbClient = await db;
-    List<Map> list = await dbClient.rawQuery("SELECT * FROM note");
-    List<Note> noteData = [];
+    List<Map> list = await dbClient.rawQuery("SELECT * FROM user");
+    List<User> usersData = [];
     for (int i = 0; i < list.length; i++) {
-      var note = Note(list[i]['title'], list[i]['desc']);
-      note.setNoteid(list[i]['id']);
-      noteData.add(note);
+      var user =
+          User(list[i]['username'], list[i]['password'], list[i]['role']);
+      user.setUserid(list[i]['id']);
+      usersData.add(user);
     }
-    return noteData;
+    return usersData;
   }
 
-  Future<bool> updateNote(Note note) async {
+  Future<bool> updateUser(User user) async {
     var dbClient = await db;
-    int res = await dbClient.update("note", note.toJson(),
-        where: "id=?", whereArgs: <int?>[note.id]);
-    print("note updated");
+    int res = await dbClient.update("user", user.toJson(),
+        where: "id=?", whereArgs: <int?>[user.id]);
+    print("user updated");
     return res > 0 ? true : false;
   }
 
-  Future<int> deleteNote(Note note) async {
+  Future<int> deleteUser(User user) async {
     var dbClient = await db;
     int res =
-        await dbClient.rawDelete("DELETE FROM note WHERE id=?", [note.id]);
-    print("note deleted");
+        await dbClient.rawDelete("DELETE FROM user WHERE id=?", [user.id]);
+    print("user deleted");
     return res;
   }
 
-  Future dropNote() async {
+  Future dropUser() async {
     io.Directory directory = await getApplicationDocumentsDirectory();
-    String path = join(directory.path, "NoteDB");
+    String path = join(directory.path, "UserDB");
     databaseFactory.deleteDatabase(path);
     print("Database Drop");
   }

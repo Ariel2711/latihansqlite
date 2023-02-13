@@ -10,14 +10,14 @@ class HomeView extends GetView<FormController> {
   const HomeView({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    controller.loadNote();
+    controller.loadUser();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Note'),
+        title: const Text('User Data'),
         centerTitle: true,
       ),
       body: FutureBuilder(
-          future: controller.loadNote(),
+          future: controller.loadUser(),
           builder: (context, i) {
             return Container(
               child: Obx(
@@ -25,12 +25,12 @@ class HomeView extends GetView<FormController> {
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   physics: ScrollPhysics(),
-                  itemCount: controller.listnote.length,
+                  itemCount: controller.listuser.length,
                   itemBuilder: ((context, i) {
                     return GestureDetector(
                       onTap: (() {
-                        Get.toNamed(Routes.FORM,
-                            arguments: controller.listnote[i]);
+                        // Get.toNamed(Routes.FORM,
+                        //     arguments: controller.listuser[i]);
                       }),
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
@@ -51,7 +51,7 @@ class HomeView extends GetView<FormController> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  controller.listnote[i].title!,
+                                  controller.listuser[i].username!,
                                   style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700),
@@ -61,8 +61,8 @@ class HomeView extends GetView<FormController> {
                                   height: 10,
                                 ),
                                 Text(
-                                  controller.listnote[i].desc!,
-                                  maxLines: 5,
+                                  "role : ${controller.listuser[i].role!}",
+                                  maxLines: 1,
                                 ),
                               ],
                             ),

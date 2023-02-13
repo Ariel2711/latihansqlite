@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   sqflite: ^2.2.3
   path_provider: ^2.0.11
+  http: ^0.13.5
+  connectivity_plus: ^3.0.3
 
 dev_dependencies: 
   flutter_lints: 2.0.1

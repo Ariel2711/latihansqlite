@@ -1,36 +1,39 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, must_be_immutable, avoid_print
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:sqlite/app/data/note_model.dart';
+import 'package:sqlite/app/data/user_model.dart';
 
 import '../controllers/form_controller.dart';
 
 class FormView extends GetView<FormController> {
   bool isnew = true;
-  Note? note = Get.arguments;
+  User? user = Get.arguments;
 
   @override
   Widget build(BuildContext context) {
-    print('note $note');
-    if (note != null) {
-      controller.titleController.text = note?.title ?? '';
-      controller.descController.text = note?.desc ?? '';
-      controller.noteset = note;
+    print('user $user');
+    if (user != null) {
+      controller.usernameController.text = user?.username ?? '';
+      controller.passwordController.text = user?.password ?? '';
+      controller.roleController.text = user?.role ?? '';
+      controller.userset = user;
       isnew = false;
     }
 
     Future savedata() async {
       if (isnew == true) {
         await controller.addRecord();
-        controller.titleController.clear();
-        controller.descController.clear();
       } else {
         await controller.updateRecord();
-        controller.titleController.clear();
-        controller.descController.clear();
       }
+      controller.listuser.value = await controller.loadUser();
+      controller.usernameController.clear();
+      controller.passwordController.clear();
+      controller.roleController.clear();
+      Get.back();
     }
 
     return Scaffold(
@@ -44,8 +47,8 @@ class FormView extends GetView<FormController> {
             children: [
               TextField(
                 textInputAction: TextInputAction.next,
-                decoration: InputDecoration(label: Text("Title")),
-                controller: controller.titleController,
+                decoration: InputDecoration(label: Text("Username")),
+                controller: controller.usernameController,
                 minLines: 1,
                 maxLines: 2,
               ),
@@ -53,22 +56,39 @@ class FormView extends GetView<FormController> {
                 height: 20,
               ),
               TextField(
+                textInputAction: TextInputAction.next,
+                decoration: InputDecoration(label: Text("Password")),
+                controller: controller.passwordController,
+                maxLines: 10,
+                minLines: 1,
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              TextField(
                 textInputAction: TextInputAction.done,
-                decoration: InputDecoration(label: Text("Description")),
-                controller: controller.descController,
+                decoration: InputDecoration(label: Text("Role")),
+                controller: controller.roleController,
                 maxLines: 10,
                 minLines: 1,
               ),
               SizedBox(height: 20),
-              note == null
+              user == null
                   ? ElevatedButton(
                       child: Text("Submit"),
                       onPressed: () async {
-                        await savedata();
-                        controller.listnote.value = await controller.loadNote();
-                        controller.titleController.clear();
-                        controller.descController.clear();
-                        Get.back();
+                        var connectivityResult =
+                            await (Connectivity().checkConnectivity());
+                        if (connectivityResult == ConnectivityResult.none) {
+                          print('internet connection not available');
+                          await savedata();
+                        } else {
+                          await controller.addRecordApi();
+                          controller.usernameController.clear();
+                          controller.passwordController.clear();
+                          controller.roleController.clear();
+                          Get.back();
+                        }
                       })
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -76,22 +96,18 @@ class FormView extends GetView<FormController> {
                         ElevatedButton(
                             child: Text("Delete"),
                             onPressed: () async {
-                              await controller.deleteRecord(note!);
-                              controller.listnote.value =
-                                  await controller.loadNote();
-                              controller.titleController.clear();
-                              controller.descController.clear();
+                              await controller.deleteRecord(user!);
+                              controller.listuser.value =
+                                  await controller.loadUser();
+                              controller.usernameController.clear();
+                              controller.passwordController.clear();
+                              controller.roleController.clear();
                               Get.back();
                             }),
                         ElevatedButton(
                             child: Text("Submit"),
                             onPressed: () async {
                               await savedata();
-                              controller.listnote.value =
-                                  await controller.loadNote();
-                              controller.titleController.clear();
-                              controller.descController.clear();
-                              Get.back();
                             })
                       ],
                     )

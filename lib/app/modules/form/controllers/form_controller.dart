@@ -1,45 +1,66 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:sqlite/app/data/note_model.dart';
+import 'package:sqlite/app/data/apiservice.dart';
+import 'package:sqlite/app/data/user_model.dart';
 import 'package:sqlite/app/data/sqlite.dart';
 
 class FormController extends GetxController {
-  TextEditingController titleController = TextEditingController();
-  TextEditingController descController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController roleController = TextEditingController();
 
-  RxList<Note> listnote = <Note>[].obs;
-  Note? noteset;
+  RxList<User> listuser = <User>[].obs;
+  RxList<User> listuserapi = <User>[].obs;
+  User? userset;
   var db = DatabaseHelper();
 
-  Future<List<Note>> loadNote() async {
-    return listnote.value = await db.getNote();
+  final ApiService api = ApiService();
+
+  Future<List<User>> loadUserApi() async {
+    return listuserapi.value = await api.getUsers();
+  }
+
+  Future addRecordApi() async {
+    var user = User(
+        usernameController.text, passwordController.text, roleController.text);
+    await api.createUser(user);
+  }
+
+  Future<List<User>> loadUser() async {
+    return listuser.value = await db.getUsers();
   }
 
   Future addRecord() async {
-    var note = Note(titleController.text, descController.text);
-    await db.saveNote(note);
+    var user = User(
+        usernameController.text, passwordController.text, roleController.text);
+    await db.saveUser(user);
   }
 
   Future updateRecord() async {
-    var note = Note(titleController.text, descController.text);
-    note.setNoteid(noteset!.id!);
-    await db.updateNote(note);
+    var user = User(
+        usernameController.text, passwordController.text, roleController.text);
+    user.setUserid(userset!.id!);
+    await db.updateUser(user);
   }
 
-  Future deleteRecord(Note note) async {
-    db.deleteNote(note);
+  Future deleteRecord(User user) async {
+    db.deleteUser(user);
   }
 
-  @override
-  void dispose() {
-    titleController.dispose();
-    descController.dispose();
-    super.dispose();
+  Future<bool> checkInternet() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile) {
+      return true;
+    } else if (connectivityResult == ConnectivityResult.wifi) {
+      return true;
+    }
+    return false;
   }
 
   @override
   void onInit() {
-    loadNote();
+    loadUser();
     super.onInit();
   }
 }
