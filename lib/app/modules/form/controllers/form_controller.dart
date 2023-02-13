@@ -22,9 +22,8 @@ class FormController extends GetxController {
   }
 
   Future addRecordApi() async {
-    var user = User(
+    await api.createUser(
         usernameController.text, passwordController.text, roleController.text);
-    await api.createUser(user);
   }
 
   Future<List<User>> loadUser() async {

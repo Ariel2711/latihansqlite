@@ -34,22 +34,20 @@ class ApiService {
     }
   }
 
-  Future<User> createUser(User user) async {
-    Map data = {
-      'username': user.username,
-      'password': user.password,
-      'role': user.role
-    };
+  Future<void> createUser(String username, password, role) async {
+    Map data = {'username': username, 'password': password, 'role': role};
+
+    print(data);
 
     var response = await http.post(
-      Uri.parse(apiUrl),
+      Uri.parse('$apiUrl/users'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(data),
     );
     if (response.statusCode == 200) {
-      return User.fromJson(json.decode(response.body));
+      return print("success");
     } else {
       throw Exception('Failed to post User');
     }
